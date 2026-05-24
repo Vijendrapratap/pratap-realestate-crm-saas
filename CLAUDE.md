@@ -12,6 +12,17 @@ Vertical SaaS CRM for Indian real estate brokerages/developers: Twenty-style CRM
 - `pnpm build` — Production build
 - `pnpm check` — Lint + typecheck + build
 
+## Git Identity / Deployment Guardrail
+
+This repo deploys from GitHub to Vercel. Before committing or pushing, Claude Code must verify:
+
+```bash
+git config user.name "Vijendrapratap"
+git config user.email "44225657+Vijendrapratap@users.noreply.github.com"
+```
+
+Never commit as `mrpratap`, `AI Bot`, `bot@example.com`, `pratap@example.com`, or any generic agent identity. If a bad author is created before push, fix it with `git commit --amend --reset-author` after setting the correct identity.
+
 ## Current Stack
 
 Next.js App Router + React 19 + TypeScript + Tailwind CSS v4 + pnpm.
