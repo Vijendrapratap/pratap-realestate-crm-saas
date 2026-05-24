@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { integrationOptions } from "@/lib/crm-data";
+import { integrationOptions, realEstateTemplateObjects, sourceSystemBlueprints, syncPrinciples } from "@/lib/crm-data";
 
 export const runtime = "nodejs";
 
@@ -32,7 +32,7 @@ export function GET() {
         demoWorkspace: "Apple",
         demoLogin: "tim@apple.dev",
         sampleData: ["companies", "people", "opportunities", "tasks", "notes", "workflows"],
-        note: "The public URL is a temporary Cloudflare quick tunnel for demo access. A production Twenty install needs a stable domain and persistent hosting.",
+        note: "The public URL is a temporary tunnel for demo access. A production Twenty install needs a stable domain and persistent hosting. Twenty should be treated as the central CRM spine with a real-estate template.",
       },
       modelConnection: {
         current: "safe deterministic demo agent",
@@ -52,7 +52,7 @@ export function GET() {
         readiness: statusFor(requiredSecrets.whatsapp),
       },
       voice: {
-        recommendedFirstProvider: "Hosted telephony/voice AI provider before self-hosting",
+        recommendedFirstProvider: "Dograh or hosted telephony/voice AI provider behind the central CRM sync layer",
         productionPath: [
           "Choose provider and buy/verify outbound number",
           "Configure webhook URL for call status/transcripts",
@@ -61,6 +61,9 @@ export function GET() {
         ],
         readiness: statusFor(requiredSecrets.voice),
       },
+      sourceSystemBlueprints,
+      realEstateTemplateObjects,
+      syncPrinciples,
       integrations: integrationOptions,
     },
     { headers: { "Cache-Control": "no-store" } },

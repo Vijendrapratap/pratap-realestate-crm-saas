@@ -7,6 +7,9 @@ import {
   leads,
   pipelineSummary,
   properties,
+  realEstateTemplateObjects,
+  sourceSystemBlueprints,
+  syncPrinciples,
 } from "@/lib/crm-data";
 
 export const runtime = "nodejs";
@@ -68,6 +71,9 @@ function getCrmPayload(request?: Request) {
     activities,
     agentCommands,
     integrations: integrationOptions,
+    sourceSystemBlueprints,
+    realEstateTemplateObjects,
+    syncPrinciples,
     demoAccess: {
       customDashboard: "/dashboard",
       rawCrmApi: "/api/crm",

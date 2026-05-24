@@ -60,9 +60,28 @@ The dashboard should have clear controls for:
 
 Avoid primary buttons that say only `Raw API`, `Setup API`, or similar developer terms.
 
+## Open-source Platform Sync Strategy
+
+The product should use the three open-source systems as backend capabilities, not as three separate user experiences.
+
+- **Twenty**: central CRM spine and source of truth. It owns contacts, leads, opportunities, tasks, notes, activities, custom real-estate objects, tenant records, and long-term CRM memory.
+- **wacrm**: WhatsApp operations layer. It can manage WhatsApp inbox, templates, replies, and WhatsApp-specific pipeline behavior, but every message, status, owner change, and next action must sync back to the Twenty CRM lead timeline.
+- **Dograh**: voice/calling layer. It can manage call workflows, transcripts, dispositions, retries, and voice-agent outcomes, but every call attempt and transcript must sync back to the same CRM lead record.
+- **Custom AI backend**: orchestration layer. It normalizes payloads, dedupes leads, routes records, calls AI models, applies permissions, queues approvals, and writes approved actions into CRM.
+
+Frontend rule:
+
+- The user should see one simple AI workspace, not three dashboards.
+- Advanced links to Twenty/wacrm/Dograh can exist for admins, but the daily broker experience should be landing page → signup → centered AI command box → quick actions.
+
+Backend rule:
+
+- No duplicate customer database should become the business source of truth.
+- Channel systems can store operational records, but canonical lead/contact/deal/activity state must sync into the central CRM.
+
 ## WhatsApp Setup UX
 
-Use WhatsApp Business Cloud API first, or a managed BSP later if the customer wants less technical setup.
+Use wacrm-style WhatsApp operations with WhatsApp Business Cloud API or a managed BSP. The owner should not need to understand the WhatsApp backend; the central UI should show conversations, drafts, approvals, and sync status.
 
 The UI should guide the owner through:
 
@@ -95,7 +114,7 @@ CRM sync rule:
 
 ## Voice Agent Setup UX
 
-Start with a hosted voice/telephony provider for reliability. Keep Dograh/self-hosted voice architecture as a later option only if volume, cost, or control requires it.
+Start with Dograh or a hosted voice/telephony provider behind the central CRM sync layer. The owner should see call outcomes, transcripts, retries, and approval status inside the AI workspace, while the canonical lead record remains in Twenty.
 
 The UI should guide the owner through:
 

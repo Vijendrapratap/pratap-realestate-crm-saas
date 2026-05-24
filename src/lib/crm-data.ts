@@ -474,21 +474,21 @@ export const integrationOptions: IntegrationOption[] = [
   },
   {
     id: "INT-WA",
-    name: "WhatsApp Business Cloud",
+    name: "wacrm WhatsApp layer",
     category: "Messaging",
     status: "Add credentials",
-    description: "Optional add-on for approved templates, replies, property shortlists, and outcome follow-ups.",
-    setupAction: "Use a guided owner setup screen: add phone number ID, WABA ID, access token, app secret, verify token, then send a test message",
-    guardrail: "AI drafts messages; agents approve high-value outbound sends.",
+    description: "Use wacrm-style WhatsApp inbox and pipeline capabilities as a specialized channel layer, while syncing every message and status back into the central Twenty CRM lead timeline.",
+    setupAction: "Connect WhatsApp Business credentials, map wacrm conversations to central lead IDs, then test inbound reply + approved outbound template sync.",
+    guardrail: "wacrm can manage WhatsApp operations; Twenty remains the central CRM source of truth and AI actions stay approval-gated.",
   },
   {
     id: "INT-VOICE",
-    name: "Hindi/English voice agent",
+    name: "Dograh voice layer",
     category: "Voice agent",
     status: "Add credentials",
-    description: "Optional AI qualification calls with transcript, outcome, retry policy, and call-cost logging.",
-    setupAction: "Use a guided setup screen: choose hosted provider, add key/from-number/webhook secret, set calling hours, test internally, then enable approval-gated campaigns",
-    guardrail: "Never auto-call DND or unconsented leads; log transcript and outcome as activity.",
+    description: "Use Dograh or a hosted voice provider for qualification calls, transcripts, outcomes, retries, and call-cost logging, synced into the central CRM.",
+    setupAction: "Map Dograh call records to lead IDs, configure from-number/webhook secret/calling hours, run one internal test call, then write transcript + disposition back to CRM.",
+    guardrail: "Never auto-call DND or unconsented leads; external calls require consent rules, retry limits, and owner approval.",
   },
   {
     id: "INT-N8N",
@@ -568,4 +568,77 @@ export const automationModules = [
     description: "Rank properties against buyer requirements and send curated options after agent approval.",
     status: "Next",
   },
+];
+
+
+export type SourceSystemBlueprint = {
+  id: string;
+  platform: "Twenty" | "wacrm" | "Dograh" | "Custom AI backend";
+  role: string;
+  ownership: string;
+  syncDirection: string;
+  realEstateUse: string;
+  frontendExposure: string;
+};
+
+export const sourceSystemBlueprints: SourceSystemBlueprint[] = [
+  {
+    id: "SRC-TWENTY",
+    platform: "Twenty",
+    role: "Central CRM spine and tenant database",
+    ownership: "Source of truth for contacts, companies, opportunities/deals, tasks, notes, activities, and custom real-estate objects.",
+    syncDirection: "All channels write normalized records into Twenty through audited backend actions; the AI reads from Twenty memory before recommending work.",
+    realEstateUse: "Prebuilt template with Buyers, Sellers, Properties, Site Visits, Requirements, Projects, Deals, Follow-ups, WhatsApp Activity, Voice Activity, and Approvals.",
+    frontendExposure: "User sees it as CRM Memory / Records, not as a separate complicated dashboard unless they open advanced CRM.",
+  },
+  {
+    id: "SRC-WACRM",
+    platform: "wacrm",
+    role: "WhatsApp operations adapter",
+    ownership: "Manages WhatsApp inbox patterns, conversation states, templates, and WhatsApp pipeline behavior.",
+    syncDirection: "Inbound/outbound WhatsApp messages, template status, owner, stage, and next action are mirrored into the central CRM timeline.",
+    realEstateUse: "Buyer inquiries, property shortlist replies, site-visit reminders, payment/document follow-ups, and reactivation campaigns.",
+    frontendExposure: "User sees WhatsApp drafts, approvals, and conversations inside the central AI workspace; wacrm can remain a specialized backend surface.",
+  },
+  {
+    id: "SRC-DOGRAH",
+    platform: "Dograh",
+    role: "Voice calling and communication intelligence layer",
+    ownership: "Handles call workflows, transcripts, dispositions, and voice-agent outcomes when enabled.",
+    syncDirection: "Every call attempt, transcript, outcome, retry, callback, and consent/DND status writes back to the central CRM lead record.",
+    realEstateUse: "New lead qualification, no-answer retries, site visit reminders, hot-lead escalation, and missed-follow-up recovery.",
+    frontendExposure: "User sees call queue, transcript, outcome, and approval status inside the AI workspace, not a second database.",
+  },
+  {
+    id: "SRC-AI",
+    platform: "Custom AI backend",
+    role: "Orchestration and permission layer",
+    ownership: "Normalizes data, runs dedupe/routing, calls AI models, applies permission rules, and writes approved actions to CRM.",
+    syncDirection: "Reads from CRM memory, proposes updates, writes internal CRM changes, and queues external WhatsApp/voice actions for approval.",
+    realEstateUse: "The centered chat box: ask for hot leads, missed follow-ups, property matches, team focus, WhatsApp drafts, and call plans.",
+    frontendExposure: "Primary interface: one central AI command box plus quick action cards.",
+  },
+];
+
+export const realEstateTemplateObjects = [
+  "Buyer lead",
+  "Seller lead",
+  "Property",
+  "Project / Builder inventory",
+  "Requirement",
+  "Site visit",
+  "Deal / Opportunity",
+  "WhatsApp conversation",
+  "Voice call transcript",
+  "Approval queue",
+  "Follow-up task",
+  "Agent performance activity",
+];
+
+export const syncPrinciples = [
+  "Twenty is the central CRM database and real-estate template workspace.",
+  "wacrm can manage WhatsApp-specific workflows, but every conversation event syncs back to the CRM lead timeline.",
+  "Dograh/voice can manage calling, but every call result, transcript, retry, and consent flag syncs back to CRM.",
+  "The frontend stays simple: landing page, signup, centered AI command box, and quick actions.",
+  "The backend does the hard work: normalization, dedupe, routing, source mapping, audit logs, and approval-gated external actions.",
 ];

@@ -41,6 +41,9 @@ type CrmPayload = {
   properties: Array<{ id: string; title: string; location: string; price: string; status: string; fit: number; matchReason: string }>;
   agentCommands: Array<{ id: string; userRequest: string; agentResponse: string; crmUpdate: string; status: string; approvalType: string }>;
   integrations: Array<{ id: string; name: string; category: string; status: string; description: string; setupAction: string; guardrail: string }>;
+  sourceSystemBlueprints: Array<{ id: string; platform: string; role: string; ownership: string; syncDirection: string; realEstateUse: string; frontendExposure: string }>;
+  realEstateTemplateObjects: string[];
+  syncPrinciples: string[];
   demoAccess: {
     customDashboard: string;
     rawCrmApi: string;
@@ -257,7 +260,7 @@ export default function DashboardPage() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 lg:px-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b88a2d]">Brokerage control room</p>
-            <h1 className="text-2xl font-semibold tracking-[-0.05em]">Real Estate CRM Dashboard</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.05em]">AI Sales Workspace</h1>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/" className="rounded-full bg-white px-4 py-2 text-sm font-semibold ring-1 ring-slate-200">Landing</Link>
@@ -274,9 +277,9 @@ export default function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div>
               <Pill tone="gold">Tenant: {data?.tenantId ?? "Loading"}</Pill>
-              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.06em]">A broker can connect WhatsApp, enable voice calling, query leads, and control CRM data from one simple dashboard.</h2>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.06em]">One AI command center. Twenty, wacrm, Dograh, WhatsApp, and voice stay synced behind it.</h2>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-white/70">
-                This is the simple operator surface for non-technical real-estate founders: guided channel setup, CRM-synced lead records, approval gates, property matches, and plain-language search. No WhatsApp or call is fired automatically.
+                The broker should not manage multiple dashboards or duplicate databases. The frontend stays simple; the backend normalizes every WhatsApp message, call, lead, task, property match, and approval into one central CRM record.
               </p>
               {data?.demoAccess ? (
                 <div className="mt-5 flex flex-wrap gap-2">
@@ -303,6 +306,60 @@ export default function DashboardPage() {
             </Card>
           )) : null}
         </div>
+
+        <Card className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b88a2d]">Central AI command box</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em]">How can I help you manage your real estate leads today?</h2>
+          <div className="mx-auto mt-6 max-w-3xl rounded-[1.5rem] bg-[#111827] p-3 text-left shadow-[0_20px_55px_rgba(15,23,42,0.18)]">
+            <textarea value={agentMessage} onChange={(e) => setAgentMessage(e.target.value)} className="min-h-24 w-full resize-none rounded-[1.15rem] border border-white/10 bg-white/10 p-4 text-sm text-white outline-none placeholder:text-white/40" placeholder="Ask your AI sales agent..." />
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                {["Show hot leads", "Draft WhatsApp", "Queue voice calls", "Sync with Twenty"].map((item) => <span key={item} className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/75">{item}</span>)}
+              </div>
+              <button onClick={askAgent} className="rounded-full bg-[#e8c871] px-5 py-2.5 text-sm font-semibold text-[#111827]">Ask AI</button>
+            </div>
+          </div>
+          {agentResult ? (
+            <div className="mx-auto mt-4 max-w-3xl rounded-2xl bg-[#f7f4ee] p-4 text-left ring-1 ring-[#eadfca]">
+              <Pill tone="green">Synced action plan</Pill>
+              <p className="mt-3 text-sm leading-6 text-slate-700">{agentResult.agentResponse}</p>
+            </div>
+          ) : null}
+        </Card>
+
+        <Card>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b88a2d]">Synced open-source backend</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em]">Three platforms, one CRM memory</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Twenty is the source of truth. wacrm and Dograh stay useful as specialized communication engines, but their data syncs back into the same lead timeline.</p>
+            </div>
+            <Pill tone="dark">No duplicate database for users</Pill>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-4">
+            {data?.sourceSystemBlueprints.map((system) => (
+              <section key={system.id} className="rounded-[1.4rem] bg-slate-50 p-4 ring-1 ring-slate-200">
+                <div className="flex items-center justify-between gap-3"><h3 className="font-semibold tracking-[-0.03em]">{system.platform}</h3><Pill tone="gold">{system.role.split(" ").slice(0, 2).join(" ")}</Pill></div>
+                <p className="mt-3 text-sm leading-6 text-slate-700">{system.ownership}</p>
+                <p className="mt-3 rounded-2xl bg-white p-3 text-xs leading-5 text-slate-600 ring-1 ring-slate-200"><strong>Sync:</strong> {system.syncDirection}</p>
+              </section>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-[0.7fr_1.3fr]">
+            <div className="rounded-[1.4rem] bg-[#111827] p-4 text-white">
+              <p className="text-sm font-semibold text-[#e8c871]">Real estate Twenty template</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {data?.realEstateTemplateObjects.map((item) => <span key={item} className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/75">{item}</span>)}
+              </div>
+            </div>
+            <div className="rounded-[1.4rem] bg-white p-4 ring-1 ring-slate-200">
+              <p className="text-sm font-semibold">Sync rules</p>
+              <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
+                {data?.syncPrinciples.map((item) => <li key={item} className="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">{item}</li>)}
+              </ul>
+            </div>
+          </div>
+        </Card>
 
         <Card>
           <div className="flex flex-wrap items-start justify-between gap-3">
