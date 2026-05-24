@@ -19,7 +19,9 @@ Next.js App Router + React 19 + TypeScript + Tailwind CSS v4 + pnpm.
 ## Product Source of Truth
 
 - `docs/proposal-requirements-summary.md` — extracted proposal requirements.
-- `docs/blueprint.md` — architecture and build order.
+- `docs/blueprint.md` — refined architecture and build order.
+- `docs/source-repo-analysis.md` — Twenty/wacrm/Dograh findings and integration strategy.
+- `docs/crm-inbound-integration.md` — current inbound lead pipeline slice and WhatsApp/voice add-on guardrails.
 - `src/lib/crm-data.ts` — current domain types and mock data.
 
 ## Architecture Rules
@@ -33,9 +35,12 @@ Next.js App Router + React 19 + TypeScript + Tailwind CSS v4 + pnpm.
 
 ## Near-Term Build Order
 
-1. Expand current homepage prototype into route-based dashboard sections.
-2. Add real navigation and app shell.
-3. Add lead profile page and activity timeline.
-4. Add inventory page and matching explanation UI.
-5. Add database schema, auth, and tenant model.
-6. Add webhook endpoints for n8n lead ingestion.
+1. Convert current homepage prototype into route-based dashboard sections with a shared app shell.
+2. Add tenant-aware domain model and Supabase/Postgres schema.
+3. Add activity timeline foundation before implementing mutating lead actions.
+4. Add lead profile page, stage movement, tasks, and activity timeline.
+5. Add inventory page and explainable matching service.
+6. Add WhatsApp/SMS provider abstraction based on the wacrm named-argument helper pattern.
+7. Add n8n/source lead ingestion endpoints with dedupe and assignment rules.
+8. Add voice provider interface and call session model, keeping Dograh/self-hosted voice optional.
+9. Add guided onboarding/configuration and Hermes-assisted approval workflows.
