@@ -1,347 +1,380 @@
 # Pratap AI Real Estate CRM SaaS
 
-A simple, founder-friendly CRM operating layer for real-estate brokerages and agencies.
+> One AI workspace for real-estate brokerages. Leads, WhatsApp, voice calls, and CRM all sync behind a single chat interface.
 
-The goal is not to make users learn a generic CRM first. The product should open into a real-estate-ready workspace where leads, WhatsApp conversations, voice-call outcomes, property matches, tasks, notes, and approvals are already organized around the way a brokerage sells property.
+The user types in plain language. The AI reads the CRM, drafts follow-ups, ranks property matches, and proposes actions. WhatsApp sends and voice calls are approval-gated. Twenty CRM is the source of truth. wacrm helper code drives WhatsApp messages. Dograh handles voice. Nothing fragmented — one workspace, one timeline, one approval queue.
 
-## Live Demo Surfaces
+---
 
-- Landing page: `/`
-- Founder/operator dashboard: `/dashboard`
-- Backend health: `/api/health`
-- CRM data backend: `/api/crm`
-- AI agent backend: `/api/agent`
-- Integration contract backend: `/api/integrations`
+## 30-second mental model
 
-The UI should not expose raw JSON as a primary user action. API routes exist for the backend and future integrations, but founder-facing buttons should say things like **WhatsApp setup**, **Voice setup**, **CRM sync**, **Open Twenty**, and **Ask agent**.
-
-## Use Case
-
-Target customer:
-
-- Real-estate brokerage owner
-- Real-estate agency/founder
-- Developer sales team
-- Channel partner team
-
-Core problem:
-
-- Leads arrive from Meta, Google, website forms, portals, walk-ins, WhatsApp, and referrals.
-- Teams lose context across spreadsheets, WhatsApp chats, calls, CRM notes, and individual agents.
-- Founders need a simple dashboard to know: who is hot, who needs follow-up, what was said, what property was shown, and what action is pending.
-
-Product promise:
-
-> Every lead enters one CRM memory. WhatsApp, voice calls, AI actions, tasks, property matches, approvals, and human notes stay attached to that lead so anyone can retrieve the answer later.
-
-## Product Principles
-
-1. **Simple UI first** — non-technical users should not need to understand APIs, webhooks, MCP, or CRM internals.
-2. **CRM is the source of truth** — all channel activity syncs back to the CRM timeline.
-3. **Real-estate template by default** — workspace starts with useful fields, views, stages, examples, and workflows.
-4. **Approval-gated AI** — AI can draft, summarize, score, and propose; external WhatsApp sends and calls require approval unless an audited automation rule is explicitly enabled.
-5. **Tenant/workspace separation** — every brokerage has its own workspace, settings, data, integrations, and permissions.
-6. **Provider modularity** — WhatsApp, voice, AI, and automation providers should be replaceable without rewriting the product.
-
-## Founder Dashboard Requirements
-
-The dashboard should have clear controls for:
-
-- Lead search by name, phone, owner, location, project, source, or stage.
-- Pipeline view: New, Contacted, Cold, Warm, Hot, Negotiation, Closed Won, Closed Lost.
-- Inbound queue with duplicate detection and routing suggestions.
-- Property matches with simple explanation.
-- AI sales agent test panel.
-- WhatsApp setup wizard.
-- Voice agent setup wizard.
-- CRM sync status.
-- Twenty CRM demo/workspace access.
-- Export and audit trail.
-
-Avoid primary buttons that say only `Raw API`, `Setup API`, or similar developer terms.
-
-## Open-source Platform Sync Strategy
-
-The product should use the three open-source systems as backend capabilities, not as three separate user experiences.
-
-- **Twenty**: central CRM spine and source of truth. It owns contacts, leads, opportunities, tasks, notes, activities, custom real-estate objects, tenant records, and long-term CRM memory.
-- **wacrm**: WhatsApp operations layer. It can manage WhatsApp inbox, templates, replies, and WhatsApp-specific pipeline behavior, but every message, status, owner change, and next action must sync back to the Twenty CRM lead timeline.
-- **Dograh**: voice/calling layer. It can manage call workflows, transcripts, dispositions, retries, and voice-agent outcomes, but every call attempt and transcript must sync back to the same CRM lead record.
-- **Custom AI backend**: orchestration layer. It normalizes payloads, dedupes leads, routes records, calls AI models, applies permissions, queues approvals, and writes approved actions into CRM.
-
-Frontend rule:
-
-- The user should see one simple AI workspace, not three dashboards.
-- Advanced links to Twenty/wacrm/Dograh can exist for admins, but the daily broker experience should be landing page → signup → centered AI command box → quick actions.
-
-Backend rule:
-
-- No duplicate customer database should become the business source of truth.
-- Channel systems can store operational records, but canonical lead/contact/deal/activity state must sync into the central CRM.
-
-## WhatsApp Setup UX
-
-Use wacrm-style WhatsApp operations with WhatsApp Business Cloud API or a managed BSP. The owner should not need to understand the WhatsApp backend; the central UI should show conversations, drafts, approvals, and sync status.
-
-The UI should guide the owner through:
-
-1. Choose WhatsApp Business Cloud or managed provider.
-2. Add `META_WABA_ID`.
-3. Add `META_PHONE_NUMBER_ID`.
-4. Add server-side access token.
-5. Add app secret and webhook verify token.
-6. Send a test message to a sample/internal lead.
-7. Confirm inbound replies appear in the Inbox.
-8. Enable template library.
-9. Enable approval rules before any outbound automation.
-
-Owner controls:
-
-- Approval before send
-- Template library
-- Opt-out/DND handling
-- Conversation owner
-- Team inbox assignment
-- Cost/activity log
-- Human handoff
-
-CRM sync rule:
-
-- Every inbound WhatsApp message becomes an activity on the lead.
-- Every outbound draft is stored before approval.
-- Every approved send is logged with sender, timestamp, template/message, status, and next action.
-- Reply outcomes can update stage, score, callback time, and owner task.
-
-## Voice Agent Setup UX
-
-Start with Dograh or a hosted voice/telephony provider behind the central CRM sync layer. The owner should see call outcomes, transcripts, retries, and approval status inside the AI workspace, while the canonical lead record remains in Twenty.
-
-The UI should guide the owner through:
-
-1. Choose voice provider.
-2. Add provider API key.
-3. Add from-number.
-4. Add webhook secret.
-5. Select languages: Hindi, English, Hinglish.
-6. Set calling hours.
-7. Set retry limits.
-8. Configure DND/consent rules.
-9. Test on an internal number.
-10. Review transcript and outcome in CRM.
-11. Enable campaigns only with approval gates.
-
-Voice campaigns:
-
-- New lead qualification
-- No-answer retry
-- Site visit reminder
-- Re-activation
-- Post-visit follow-up
-- Payment/booking reminder
-
-CRM sync rule:
-
-- Each call writes transcript, disposition, summary, next action, callback time, lead score change, and owner assignment to the CRM activity timeline.
-
-## Twenty CRM Direction
-
-Twenty is useful because it already has many CRM concepts we should study and reuse:
-
-- Workspaces
-- People
-- Companies
-- Opportunities
-- Tasks
-- Notes
-- Workflows
-- Views
-- Roles/permissions
-- API and integration architecture
-- MCP/AI direction
-- Workspace-level customization
-
-Current local demo:
-
-- Local Twenty path: `/home/pratap/apps/twenty-selfhost`
-- Local URL: `http://localhost:3001`
-- Demo workspace: `Apple`
-- Demo login: `tim@apple.dev`
-
-Do not put real customer PII in temporary tunnels or local demo workspaces.
-
-## Real Estate Template Needed in Twenty
-
-The generic Twenty workspace should be turned into a real-estate-ready workspace/template.
-
-Recommended real-estate objects/fields:
-
-- Lead / Contact
-- Company / Broker partner / Developer
-- Property
-- Project
-- Opportunity / Deal
-- Site visit
-- Follow-up task
-- WhatsApp conversation
-- Voice call activity
-- Property shortlist
-- Requirement profile
-- Source campaign
-- Owner/agent
-
-Recommended lead fields:
-
-- Name
-- Phone
-- Email
-- Source
-- Channel
-- Requirement
-- Property type
-- Budget
-- Preferred location
-- Purchase timeline
-- Language preference
-- Stage
-- Score
-- Assigned owner
-- Last contacted
-- Next action
-- DND/consent status
-
-Recommended stages:
-
-1. New
-2. Contacted
-3. Cold
-4. Warm
-5. Hot
-6. Site Visit Scheduled
-7. Site Visit Done
-8. Negotiation
-9. Closed Won
-10. Closed Lost
-
-Recommended saved views:
-
-- Hot leads today
-- New unassigned leads
-- No-answer retry queue
-- Site visits this week
-- Negotiation requiring manager
-- WhatsApp replies waiting
-- Voice transcripts needing review
-- High-budget investors
-- Stale leads older than 7 days
-
-## AI and OpenRouter
-
-For the custom Pratap AI backend, OpenRouter is the preferred first AI provider because it is OpenAI-compatible and can use one API key for multiple models.
-
-Environment variables:
-
-```bash
-OPENROUTER_API_KEY=
-AI_PROVIDER=openrouter
-AI_MODEL=openrouter/auto
-AI_DAILY_SPEND_LIMIT_USD=
+```
+              ┌────────────────────────────┐
+              │   What the user sees       │
+              │                            │
+              │   • Marketing landing      │
+              │   • 6-step onboarding      │
+              │   • Chat workspace         │  ←── ONE primary surface
+              │   • CRM dashboard          │       (everything else is
+              │   • Activity timeline      │        plumbing)
+              │   • WhatsApp page          │
+              │   • Voice page             │
+              └─────────────┬──────────────┘
+                            │
+              ┌─────────────▼──────────────┐
+              │  Pratap orchestrator       │
+              │  (this Next.js repo)       │
+              │                            │
+              │  • AI agent + MCP server   │
+              │  • Webhook receivers       │
+              │  • Audit + approval queue  │
+              │  • Tenant config vault     │
+              └──┬──────────┬────────┬─────┘
+                 │          │        │
+       ┌─────────▼──┐  ┌────▼────┐  ┌▼──────────┐
+       │ Twenty CRM │  │WhatsApp │  │  Dograh   │
+       │  (truth)   │  │ (Meta)  │  │  (voice)  │
+       └────────────┘  └─────────┘  └───────────┘
 ```
 
-Recommended behavior:
+**Twenty holds every lead, property, activity, and task.** WhatsApp and voice are *channels* the orchestrator talks to, then writes back to Twenty as timeline events. The chat surface reads from Twenty through typed tools, never from the channels directly.
 
-- Store the key only server-side.
-- Never expose model credentials in browser code.
-- Add tenant-level spend limits.
-- Add tool permissions per tenant/user role.
-- Start in sandbox mode.
-- Allow AI to propose CRM changes before enabling direct writes.
-- Keep WhatsApp sends and calls approval-gated.
+---
 
-### Can OpenRouter power Twenty AI too?
+## Why this shape
 
-Likely path:
+Three open-source projects influenced the architecture. The decision for each was studied against "build it ourselves":
 
-1. First verify the current self-hosted Twenty version's AI provider settings/hooks.
-2. If Twenty supports OpenAI-compatible endpoints directly, configure OpenRouter as the OpenAI-compatible base URL.
-3. If Twenty only supports fixed providers, add a thin server-side adapter/proxy that presents an OpenAI-compatible interface and forwards to OpenRouter.
-4. Keep the same API key on the backend side, not per browser user.
+| Service | Role | Why we use it | What we don't take |
+|---|---|---|---|
+| **Twenty** | Source of truth for leads, properties, activities, tasks | Multi-tenant CRM with REST + GraphQL + native MCP, schema-per-workspace in one Postgres, outbound webhooks with HMAC | We don't fork it. We run one instance, workspace per customer. |
+| **wacrm** | WhatsApp helper code | The `meta-api.ts` named-arg helpers prevent swapped-credential bugs, plus HMAC verify and phone utils | We don't deploy wacrm. It's single-tenant by design. We ported the helpers. |
+| **Dograh** | Voice calls (Hindi/English) | Multi-tenant via `organization_id`, pluggable telephony (Twilio, Plivo, Telnyx, Vonage), ships its own LLM/STT/TTS stack via Pipecat | We don't rebuild Pipecat. We deploy Dograh, call REST, poll for results. |
 
-Practical recommendation:
+Full study: [docs/sync-architecture.md](./docs/sync-architecture.md) and [docs/source-repo-analysis.md](./docs/source-repo-analysis.md).
 
-- Use OpenRouter immediately for this custom SaaS agent.
-- Study Twenty AI/MCP/provider hooks before modifying Twenty itself.
-- Do not fork deeply until it is clear whether template + API integration is enough.
+---
 
-## Backend Sync Model
+## How a chat turn flows
 
-All integrations should write through the backend, not directly from the browser.
+```
+  User types in /dashboard
+        │
+        ▼
+  POST /api/agent  {message, leadId, tenantId}
+        │
+        ▼
+  ┌─────────────────────────────────────────────┐
+  │ Agent runner                                │
+  │                                             │
+  │  AI key set?  ── yes ─► AI SDK + OpenRouter │
+  │                          + 14 typed tools   │
+  │  AI key set?  ── no  ─► deterministic       │
+  │                          intent router      │
+  └─────────────────────────────────────────────┘
+        │
+        ▼
+  Tool calls fan out to:
+   • TwentyClient (read leads, write activities)
+   • DograhClient (place call, fetch transcript)
+   • Meta Cloud API direct (send WhatsApp)
+        │
+        ▼
+  Every call records an AgentDecision row:
+   • proposed / approved / rejected / executed
+   • outcome: success / failure
+        │
+        ▼
+  Server streams text back, then a
+  __META__ frame with structured data
+  (tool calls, property matches)
+        │
+        ▼
+  Dashboard appends text as chunks arrive,
+  then renders match cards and "proposed
+  CRM updates" panel
+```
 
-Preferred flow:
+The same 14 tools are exposed by [`/api/mcp`](src/app/api/mcp/route.ts) as a JSON-RPC 2.0 server, so any MCP client (Claude Desktop, Cursor, internal agents) can reach the same surface.
 
-1. Channel event arrives: WhatsApp, voice provider, website form, Meta lead, portal parser, or manual entry.
-2. Backend normalizes payload.
-3. Backend dedupes by phone/email/source.
-4. Backend creates or updates CRM lead.
-5. Backend writes activity event.
-6. AI reads allowed CRM context.
-7. AI proposes next action.
-8. Human approves external message/call if required.
-9. Backend logs final outcome.
+---
 
-This keeps data organized and queryable.
+## How a lead enters the system
 
-## Current Status
+```
+                    Inbound channels
+   ┌──────────┬──────────┬──────────┬──────────┐
+   │ Meta Ads │  n8n     │ 99acres  │ WhatsApp │
+   │ webhook  │ scraper  │ parser   │ message  │
+   └────┬─────┴────┬─────┴────┬─────┴────┬─────┘
+        │          │          │          │
+        ▼          ▼          ▼          ▼
+   POST /api/ingest/leads      /api/webhooks/whatsapp
+                  │                       │
+                  ▼                       ▼
+        ┌─────────────────────────────────────┐
+        │  Pratap orchestrator                │
+        │   1. Normalize phone                │
+        │   2. Look up by phone (dedup)       │
+        │   3. Create Twenty Person record    │
+        │   4. Append TimelineActivity        │
+        │   5. Apply routing rule + owner     │
+        │   6. Record AgentDecision           │
+        └─────────────────────────────────────┘
+                  │
+                  ▼
+              Twenty CRM
+              (the only place data lives)
+                  │
+                  ▼
+           Sidebar lead list updates
+           on next workspace refresh
+```
 
-- Next.js 16 + React 19 + TypeScript + Tailwind CSS v4 prototype.
-- Landing page and dashboard are live prototype surfaces.
-- Backend API routes exist for CRM data, agent responses, health, and integration contract.
-- Demo data represents a real-estate brokerage workflow.
-- Twenty is installed separately for study/demo.
-- WhatsApp and voice are not sending live messages/calls yet; the product intentionally shows approval-gated setup.
+There's no duplicate database. Twenty owns the record. The orchestrator is a stateless API layer plus an audit log.
 
-## Commands
+---
+
+## What ships in the box (today)
+
+### Surfaces
+
+| URL | What it is |
+|---|---|
+| `/` | Minimal landing — single CTA |
+| `/onboarding` | 6-step wizard (brokerage → sources → WhatsApp → voice → AI → approvals) |
+| `/dashboard` | AI chat workspace (default tab) |
+| `/dashboard/crm` | CRM dashboard — stats, pipeline, leads table, inventory |
+| `/dashboard/activity` | Combined timeline: CRM activities + agent decisions |
+| `/dashboard/whatsapp` | Connection status + recent WhatsApp activity |
+| `/dashboard/voice` | Connection status + recent calls |
+
+### API + backend
+
+| Route | Purpose |
+|---|---|
+| `POST /api/agent` | Chat with the AI agent, streamed |
+| `GET /api/agent` | Tool surface + connectivity + recent decisions |
+| `POST /api/mcp` | JSON-RPC 2.0 MCP server (initialize, tools/list, tools/call) |
+| `POST /api/ingest/leads` | n8n / Meta / portal webhook entrypoint |
+| `POST /api/webhooks/whatsapp` | Meta WhatsApp Cloud webhook (HMAC-verified) |
+| `POST /api/webhooks/twenty` | Twenty outbound webhook receiver |
+| `POST /api/calls/start` | Trigger Dograh outbound call |
+| `POST /api/onboarding` | Save brokerage profile |
+| `GET /api/crm` | Lists for sidebar, dashboards, sections |
+| `GET /api/health` | Healthcheck |
+
+### The 14 AI tools
+
+Defined once in [src/lib/agent/tools.ts](src/lib/agent/tools.ts), used by both the chat agent and the MCP server.
+
+| Tool | Approval? |
+|---|---|
+| `search_leads` | — |
+| `get_lead` | — |
+| `find_lead_by_phone` | — |
+| `create_lead` (dedupes by phone) | — |
+| `update_lead` | — |
+| `move_stage` | — |
+| `add_note` | — |
+| `search_properties` | — |
+| `match_properties_for_lead` (cross-record reasoning) | — |
+| `draft_whatsapp` (returns text, doesn't send) | — |
+| `send_whatsapp` | **yes** |
+| `draft_call_script` | — |
+| `start_call` | **yes** |
+| `list_recent_decisions` | — |
+
+Every tool call writes an `AgentDecision` row: prompt → proposed action → status (proposed / auto_approved / approved / rejected / executed) → outcome. The agent reads its own approval/rejection stats from prior decisions on every new query — that's the "learns over time" loop.
+
+---
+
+## Live vs mock — what's currently connected
+
+```
+                    Live? (env-driven)
+   ┌──────────────────────────────────────┐
+   │ Twenty CRM     ●     mock by default │
+   │                       (TWENTY_API_KEY)│
+   │                                      │
+   │ WhatsApp       ●     mock by default │
+   │                       (META_*)        │
+   │                                      │
+   │ Dograh voice   ●     mock by default │
+   │                       (DOGRAH_*)      │
+   │                                      │
+   │ AI provider    ●     LIVE in dev     │
+   │                       (OpenRouter)    │
+   └──────────────────────────────────────┘
+```
+
+Each integration has a typed client with a `mock` mode that returns deterministic demo data. Setting the relevant env vars in [.env.local](.env.example) flips the client to `live` — the agent code path doesn't change. This lets the chat + CRM + onboarding work end-to-end without any external service running.
+
+To run with a real Twenty:
+
+```bash
+# Stand up Twenty locally (one-time)
+mkdir -p /tmp/twenty-stack
+cp /home/pratap/repo-analysis/twenty/packages/twenty-docker/docker-compose.yml /tmp/twenty-stack/
+# Pick a free host port (3000 is our app), generate keys, then:
+cd /tmp/twenty-stack && docker compose up -d
+
+# Sign up in the browser, get an API key, then in .env.local:
+#   TWENTY_SERVER_URL=http://localhost:3002
+#   TWENTY_API_KEY=<your key>
+
+pnpm dev
+```
+
+---
+
+## How the AI agent improves over time
+
+```
+   User asks something
+        ▼
+   Agent loads its system prompt
+        │
+        │  ← buildSystemPrompt() injects:
+        │      Learned from this workspace (last N decisions):
+        │        search_leads: 5 proposed, 100% approved
+        │        send_whatsapp: 3 proposed, 67% approved, 33% rejected
+        │        If a tool has a high rejection rate here,
+        │        propose alternatives or ask before using it.
+        │
+        ▼
+   Agent makes tool calls
+        ▼
+   Each tool call writes an AgentDecision row
+        ▼
+   Next query reads from those decisions
+```
+
+No fine-tuning, no vector DB needed for this loop. The agent reads its own approval history from the same Postgres that holds leads, computes per-tool stats with a SQL aggregate, and feeds them into its system prompt as RAG context.
+
+When message bodies + call transcripts grow large enough to warrant semantic search, we add **pgvector inside Twenty's Postgres** — not a separate vector DB. See [docs/sync-architecture.md](./docs/sync-architecture.md) for the path.
+
+---
+
+## Tech stack
+
+- **Frontend + API**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS v4
+- **AI**: Vercel AI SDK v6 + OpenRouter (model defaults to `anthropic/claude-haiku-4.5`)
+- **CRM**: Twenty (self-hosted, one instance, workspace-per-tenant)
+- **Voice**: Dograh (self-hosted) over REST
+- **WhatsApp**: Meta WhatsApp Cloud API direct (helpers ported from wacrm)
+- **MCP**: JSON-RPC 2.0 over HTTP, Bearer-token auth
+- **Package manager**: pnpm
+- **Deploy target**: Vercel
+
+---
+
+## Local development
 
 ```bash
 pnpm install
-pnpm dev
-pnpm lint
-pnpm typecheck
-pnpm build
-pnpm check
+pnpm dev        # Next.js dev server at http://localhost:3000
+pnpm lint       # ESLint
+pnpm typecheck  # tsc --noEmit
+pnpm build      # Production build
+pnpm check      # lint + typecheck + build
 ```
 
-## Environment Variables
+Minimum env for AI-enabled chat (full list in [.env.example](.env.example)):
 
-See `.env.example`.
+```bash
+# AI provider (chat works without this in deterministic fallback mode):
+OPENROUTER_API_KEY=sk-or-...
+AI_PROVIDER=openrouter
+AI_MODEL=anthropic/claude-haiku-4.5
 
-Key groups:
+# Add for live Twenty:
+TWENTY_SERVER_URL=http://localhost:3002
+TWENTY_API_KEY=...
 
-- App URL
-- Database/auth
-- WhatsApp Business Cloud
-- Voice provider
-- OpenRouter/AI
-- Twenty CRM sync
-- n8n/automation
+# Add for live WhatsApp:
+META_APP_ID=...
+META_APP_SECRET=...
+META_ACCESS_TOKEN=...
+META_WABA_ID=...
+META_PHONE_NUMBER_ID=...
+WHATSAPP_VERIFY_TOKEN=...
 
-## Production Build Order
+# Add for live voice:
+DOGRAH_API_URL=...
+DOGRAH_API_KEY=...
+DOGRAH_ORG_ID=...
+```
 
-1. Persistent multi-tenant database/auth.
-2. Real-estate CRM schema and workspace/template.
-3. Twenty study: template, workspace customization, API/MCP/AI extension points.
-4. WhatsApp Business Cloud setup wizard and webhook.
-5. Voice provider setup wizard and webhook.
-6. AI agent using OpenRouter with tool permissions.
-7. Activity timeline and audit log.
-8. Approval queue for WhatsApp/calls.
-9. Property inventory and explainable matching.
-10. Billing, tenant admin, roles, and exports.
+`.env.local` is gitignored. Never commit secrets.
 
-## Non-Negotiables
+---
 
-- No real secrets in the repo.
-- Do not expose raw API JSON as a main user path.
-- Every lead action creates an activity event.
-- Every workspace stays tenant-separated.
-- External WhatsApp and voice actions stay approval-gated until explicitly configured.
-- CRM remains the source of truth.
+## Repo layout
+
+```
+src/
+├── app/
+│   ├── page.tsx                  # Landing
+│   ├── onboarding/page.tsx       # 6-step wizard
+│   ├── dashboard/
+│   │   ├── layout.tsx            # Shared sidebar (nav + leads list)
+│   │   ├── sidebar.tsx           # Chat / CRM / Activity / WhatsApp / Voice
+│   │   ├── workspace-context.tsx # Tenant + leads context
+│   │   ├── page.tsx              # Chat (default)
+│   │   ├── crm/page.tsx          # CRM dashboard
+│   │   ├── activity/page.tsx     # Timeline
+│   │   ├── whatsapp/page.tsx     # Status + activity
+│   │   └── voice/page.tsx        # Status + calls
+│   └── api/
+│       ├── agent/route.ts        # Chat agent, streams via SSE
+│       ├── mcp/route.ts          # JSON-RPC 2.0 MCP server
+│       ├── crm/route.ts          # Sidebar + dashboards data
+│       ├── ingest/leads/route.ts # n8n / Meta / portal entrypoint
+│       ├── webhooks/
+│       │   ├── whatsapp/route.ts # Meta Cloud HMAC-verified
+│       │   └── twenty/route.ts   # Twenty outbound webhooks
+│       ├── calls/start/route.ts  # Trigger Dograh call
+│       ├── onboarding/route.ts   # Save profile
+│       └── health/route.ts
+├── lib/
+│   ├── tenant/config.ts          # Env → tenant config + connectivity
+│   ├── twenty/{client,types}.ts  # Twenty REST + mock fallback
+│   ├── whatsapp/meta-api.ts      # Ported from wacrm: send + HMAC + parse
+│   ├── dograh/client.ts          # Dograh REST + poll
+│   ├── audit/decisions.ts        # AgentDecision log + signals
+│   ├── onboarding/profile.ts     # Profile shape + save/list
+│   ├── agent/
+│   │   ├── tools.ts              # 14 typed tools (shared)
+│   │   ├── runner.ts             # Dispatcher: AI vs deterministic
+│   │   └── ai-runner.ts          # AI SDK + OpenRouter + streaming
+│   └── crm-data.ts               # Demo dataset (mock-mode source)
+docs/
+├── blueprint.md
+├── sync-architecture.md          # Full architectural rationale
+├── source-repo-analysis.md       # Twenty/wacrm/Dograh deep dives
+└── ...
+```
+
+---
+
+## Product principles
+
+1. **Simple UI first.** Non-technical users should not need to understand APIs, webhooks, MCP, or CRM internals. One chat surface, one CTA per page.
+2. **CRM is the source of truth.** All channel activity syncs back to Twenty's timeline. No parallel databases.
+3. **Approval-gated AI.** AI can read, draft, summarize, and propose. External WhatsApp sends and voice calls require approval unless a tenant policy explicitly auto-approves.
+4. **Tenant separation.** Each brokerage gets its own Twenty workspace, its own credentials, its own audit log.
+5. **Provider modularity.** WhatsApp, voice, AI, and automation providers should be replaceable without rewriting the product. Every external dependency hides behind a typed client.
+6. **Mock-by-default.** Every integration has a `mock` mode so the product works offline. Flipping to `live` is a config change, not a code change.
+
+---
+
+## Next steps
+
+In priority order:
+
+1. **Stand up Twenty locally** for the demo brokerage and run the full agent → CRM round-trip live (rather than against mock data).
+2. **Wire onboarding provisioning** — the wizard collects data but doesn't yet call Twenty Metadata API to create the workspace + real-estate template objects.
+3. **Enable pgvector inside Twenty's Postgres** once message bodies + transcripts justify semantic search.
+4. **Tool-call streaming** in the chat — show "calling search_leads…" / "found 2 hot leads" as the model works, not just the final text.
+5. **Deploy** to Vercel (the architecture is Vercel-native — Next.js App Router, Fluid Compute friendly).
